@@ -26,6 +26,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/useToast"
 import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function JobPostings() {
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([])
@@ -35,6 +36,7 @@ export function JobPostings() {
   const [selectedPosting, setSelectedPosting] = useState<JobPosting | null>(null)
   const { toast } = useToast()
   const { register, handleSubmit, control, reset } = useForm()
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,7 +89,7 @@ export function JobPostings() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create job posting",
+        description: error.message
       })
     }
   }
@@ -127,31 +129,33 @@ export function JobPostings() {
       key: "actions",
       title: "Actions",
       render: (jobPosting: JobPosting) => (
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={async () => {
-            try {
-              await archiveJobPosting(jobPosting._id);
-              toast({
-                title: "Success",
-                description: "Job posting archived successfully"
-              });
-              // Refresh job postings list
-              const response = await getJobPostings();
-              setJobPostings(response.jobPostings);
-            } catch (error) {
-              toast({
-                variant: "destructive",
-                title: "Error",
-                description: error.message
-              });
-            }
-          }}
-        >
-          <Archive className="mr-2 h-4 w-4" />
-          Archive
-        </Button>
+        user?.role !== 'Hiring Manager' && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={async () => {
+              try {
+                await archiveJobPosting(jobPosting._id);
+                toast({
+                  title: "Success",
+                  description: "Job posting archived successfully"
+                });
+                // Refresh job postings list
+                const response = await getJobPostings();
+                setJobPostings(response.jobPostings);
+              } catch (error) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: error.message
+                });
+              }
+            }}
+          >
+            <Archive className="mr-2 h-4 w-4" />
+            Archive
+          </Button>
+        )
       )
     }
   ]
@@ -162,83 +166,85 @@ export function JobPostings() {
         heading="Job Postings"
         text="Manage your job postings"
       >
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Job Posting
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Create Job Posting</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Input
-                    placeholder="Title"
-                    {...register("title", { required: true })}
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <Controller
-                    name="team"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select team" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {teams.map((team) => (
-                            <SelectItem key={team._id} value={team._id}>
-                              {team.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-
-                <div>
-                  <Textarea
-                    placeholder="Summary"
-                    {...register("summary", { required: true })}
-                    className="min-h-[100px]"
-                  />
-                </div>
-
-                <div>
-                  <Textarea
-                    placeholder="Requirements (one per line)"
-                    {...register("requirements", { required: true })}
-                    className="min-h-[100px]"
-                  />
-                </div>
-
-                <div>
-                  <Textarea
-                    placeholder="Responsibilities (one per line)"
-                    {...register("responsibilities", { required: true })}
-                    className="min-h-[100px]"
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full">
-                Create Job Posting
+        {(user?.role === 'Admin' || user?.role === 'HR Admin') && (
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                New Job Posting
               </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                <DialogTitle>Create Job Posting</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <Input
+                      placeholder="Title"
+                      {...register("title", { required: true })}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      name="team"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select team" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teams.map((team) => (
+                              <SelectItem key={team._id} value={team._id}>
+                                {team.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Textarea
+                      placeholder="Summary"
+                      {...register("summary", { required: true })}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+
+                  <div>
+                    <Textarea
+                      placeholder="Requirements (one per line)"
+                      {...register("requirements", { required: true })}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+
+                  <div>
+                    <Textarea
+                      placeholder="Responsibilities (one per line)"
+                      {...register("responsibilities", { required: true })}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full">
+                  Create Job Posting
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </PageHeader>
 
       <DataTable

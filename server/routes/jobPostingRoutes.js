@@ -1,27 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const jobPostingService = require('../services/jobPostingService');
-const { requireUser } = require('./middleware/auth');
+const { requireUser, requireRole } = require('./middleware/auth');
 
-router.post('/', requireUser, async (req, res) => {
-  try {
-    console.log('Received job posting creation request:', {
-      body: req.body,
-      user: req.user,
-      organization: req.user.organization
-    });
-    const jobPosting = await jobPostingService.createJobPosting(
-      req.user.organization,
-      req.body
-    );
-    console.log('Job posting created successfully:', jobPosting);
-    res.status(201).json({ jobPosting });
-  } catch (error) {
-    console.error('Error creating job posting:', error);
-    res.status(400).json({ error: error.message });
-  }
-});
-
+// Read-only access for all authenticated users
 router.get('/', requireUser, async (req, res) => {
   try {
     const jobPostings = await jobPostingService.getJobPostings(req.user.organization);
@@ -55,7 +37,27 @@ router.get('/:id', requireUser, async (req, res) => {
   }
 });
 
-router.put('/:id/archive', requireUser, async (req, res) => {
+// Only Admin and HR Admin can create/archive
+router.post('/', requireUser, requireRole(['Admin', 'HR Admin']), async (req, res) => {
+  try {
+    console.log('Received job posting creation request:', {
+      body: req.body,
+      user: req.user,
+      organization: req.user.organization
+    });
+    const jobPosting = await jobPostingService.createJobPosting(
+      req.user.organization,
+      req.body
+    );
+    console.log('Job posting created successfully:', jobPosting);
+    res.status(201).json({ jobPosting });
+  } catch (error) {
+    console.error('Error creating job posting:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.put('/:id/archive', requireUser, requireRole(['Admin', 'HR Admin']), async (req, res) => {
   try {
     console.log('Archiving job posting:', req.params.id);
     const jobPosting = await jobPostingService.archiveJobPosting(

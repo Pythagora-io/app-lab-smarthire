@@ -1,136 +1,133 @@
-# SmartHire
+```markdown
+# SmartHIre
 
-SmartHire is an advanced internal tool designed to streamline the recruitment process by centralizing applicant intake and tracking their progress through the recruitment pipeline. This tool integrates with Google Forms to automatically sync applicant data and provides real-time status updates, role-based access, and management of job postings and contracts.
+SmartHIre is an advanced internal recruitment tool designed to streamline the application process by centralizing applicant data intake and tracking. It simplifies the recruitment workflow by integrating Google Forms for automatic applicant creation, providing real-time application status updates, role-based access, job postings, and team management.
 
 ## Overview
 
-### Architecture and Technologies
+SmartHIre is built with a modern full-stack architecture, leveraging ReactJS for the frontend, Express.js for the backend, and MongoDB for data storage. The project utilizes token-based authentication with JWT and follows best practices for code organization and maintainability.
 
-SmartHire is built as a full-stack application with the following components:
+### Technologies Used
 
-- **Frontend**: Developed using ReactJS, with client-side routing managed by `react-router-dom`. The frontend utilizes the Vite devserver for development and integrates `shadcn-ui` components with the Tailwind CSS framework.
-  
-- **Backend**: Implemented using Express.js, providing a REST API to handle various functionalities. MongoDB is used as the database, interfaced through Mongoose. Token-based authentication is employed using bearer access and refresh tokens.
+- **Frontend**: 
+  - ReactJS (with Vite DevServer)
+  - Shadcn-ui component library
+  - Tailwind CSS
+  - React Router DOM
 
-- **Database**: MongoDB for data storage, managed through the Mongoose library.
+- **Backend**: 
+  - Node.js (Express.js)
+  - MongoDB (with Mongoose)
+  - JWT for authentication
 
 ### Project Structure
 
-- **Frontend (`client/`)**: 
-  - `src/` – Contains React components, pages, hooks, APIs, and context setup.
-  - `api/` – Defines API utility functions to interact with the backend.
-  - `components/` – Contains reusable UI components.
-  - `pages/` – Contains page components corresponding to different routes.
-  - `App.tsx` – Main application component for defining routes and layout.
-  - `index.css` – CSS file including Tailwind CSS and custom styles.
-  - `vite.config.ts` – Configuration for the Vite build tool.
-
-- **Backend (`server/`)**: 
-  - `config/` – Contains configuration files for database and Google API authentication.
-  - `models/` – Defines Mongoose schemas for various entities such as Applicants, Organizations, Teams, etc.
-  - `routes/` – Implements API route handlers.
-  - `services/` – Contains service classes performing business logic and database operations.
-  - `workers/` – Scheduled jobs for tasks like Google Sheets polling.
-  - `server.js` – Main server file to set up and start the Express.js server.
-  - `.env` – Environment variables for server configuration.
+- **client/**: Contains the ReactJS frontend code.
+  - **api/**: API request files with mocked data.
+  - **components/**: Reusable React components.
+  - **contexts/**: Context for authentication.
+  - **hooks/**: Custom hooks.
+  - **pages/**: Main pages of the application.
+  - **styles/**: Global CSS styles.
+- **server/**: Contains the Express.js backend code.
+  - **config/**: Configuration files for database and Google OAuth.
+  - **models/**: Mongoose schemas.
+  - **routes/**: Express route handlers.
+  - **services/**: Business logic.
+  - **utils/**: Utility functions.
+  - **workers/**: Scheduled jobs.
 
 ## Features
 
-### Key Features in the MVP
+1. **Application Intake**
+   - Integrate Google Forms to sync applicant data.
+   - Fields: Email, Name, Location, CV upload, Positions interested, Additional file.
 
-1. **Application Intake**:
-   - Integrates Google Forms to automatically sync applicant data into the platform.
-   - Includes fields such as Email, Name, Location, CV upload, Positions interested, and an additional file upload option.
+2. **Real-Time Application Status**
+   - Track recruitment stages: Applied, Screened, Interview Stages, Offer, Hired, Rejected.
+   - Assign applicants to job postings.
 
-2. **Real-Time Application Status**:
-   - Tracks and displays the current recruitment stage of each applicant.
-   - Defines stages like Applied, Screened, Interview, Offer, Hired, and Rejected.
+3. **Role-Based Access**
+   - User roles: HR Admin, Hiring Manager, Admin.
+   - Different access levels and functionalities for each role.
 
-3. **Role-Based Access**:
-   - Three user roles:
-     - **HR Admin**: Full access to manage applicants and update statuses.
-     - **Hiring Manager**: View access limited to assigned applicants and job postings.
-     - **Admin**: Full access to all organization data and settings.
+4. **Dashboard**
+   - View applicant distribution across pipeline stages.
+   - List of leave approvals with Approve and Cancel buttons.
 
-4. **Dashboard**:
-   - Displays applicant distribution across pipeline stages and lists leave approvals.
+5. **Organization Management**
+   - Isolated data for each organization.
+   - Manage organization details and users.
 
-5. **Organization Management**:
-   - Organization-level isolation ensuring data privacy.
-   - Admins can manage organization details, rename organizations, and create/manage users.
+6. **Job Postings**
+   - Create and manage job postings.
+   - Assign job postings to teams.
 
-6. **Job Postings**:
-   - Allows creating, updating, and managing job postings and associated teams.
-
-7. **Teams**:
-   - Enables management of teams, employees, and their assignments.
-
-8. **Contracts**:
-   - Manages contracts with associated job postings and applicants, including salary, type, and status updates.
+7. **Teams**
+   - Manage teams within an organization.
+   - Dashboard for team insights.
    
-### Additional Implemented Features
-
-1. **Google Forms Integration**:
-   - Automatic applicant creation from Google Forms responses.
-   - Admins can set up integration by connecting their Google account and specifying the Google Sheet URL.
-
-2. **Hiring Manager Assignment**:
-   - HR Admin can assign applicants to Hiring Managers.
-   - Hiring Manager can view and interact with assigned applicants only.
+8. **Contracts**
+   - Manage contracts associated with job postings and hired applicants.
 
 ## Getting Started
 
 ### Requirements
 
-Ensure you have the following installed:
+To run this project, you need:
 
-- Node.js (>= 14.x)
-- MongoDB (>= 4.x)
-- npm (Node Package Manager)
-- Modern web browser
+- Node.js (v14 or higher)
+- MongoDB (local or cloud-based)
+- Google account for OAuth integration (for Google Forms feature)
 
 ### Quickstart
 
-Follow these steps to set up and run the project:
+1. **Clone the repository**
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository_url>
-   cd SmartHire
-   ```
+```bash
+git clone https://github.com/yourusername/SmartHIre.git
+cd SmartHIre
+```
 
-2. **Install dependencies**:
-   - **Frontend**:
-     ```bash
-     cd client
-     npm install
-     ```
-   - **Backend**:
-     ```bash
-     cd server
-     npm install
-     ```
+2. **Install dependencies**
 
-3. **Configure environment variables**:
-   - Create a `.env` file in the `server/` directory based on the `.env.example` file and set the required environment variables.
+```bash
+# Install backend dependencies
+cd server
+npm install
 
-4. **Seed the database**:
-   Run the seed script to populate the initial data:
-   ```bash
-   npm run seed
-   ```
+# Install frontend dependencies
+cd ../client
+npm install
+```
 
-5. **Start the development servers**:
-   - Run both frontend and backend concurrently:
-     ```bash
-     npm run start
-     ```
+3. **Set up environment variables**
 
-6. **Access the application**:
-   Open your browser and navigate to `http://localhost:5173` for the frontend, and `http://localhost:3000` for the backend API.
+Create a `.env` file in the `server/` directory with the following content:
 
-## License
+```env
+PORT=3000
+MONGODB_URL=mongodb://localhost:27017/smarthire
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
 
-Proprietary software. All rights reserved.
+4. **Run the application**
 
-```2024 SmartHire Project. All rights reserved.```
+```bash
+# In the project root directory
+npm run start
+```
+
+This command runs both the frontend and backend using concurrently.
+
+5. **Access the application**
+
+Open your browser and navigate to `http://localhost:5173` to access the application.
+
+### License
+
+The project is proprietary (not open source). All rights reserved.  
+Copyright (c) 2024.
+```

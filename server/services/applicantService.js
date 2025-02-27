@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Applicant = require('../models/Applicant');
 
 class ApplicantService {
@@ -9,17 +10,31 @@ class ApplicantService {
    */
   async getApplicants(organizationId, user) {
     try {
+      console.log(`Getting applicants for user ${user._id} with role ${user.role}`);
+
       let query = { organization: organizationId };
 
-      // If user is a Hiring Manager, only show applicants assigned to them
+      // Only filter by hiring manager for Hiring Manager role 
       if (user.role === 'Hiring Manager') {
-        query.hiringManager = user._id;
+        query = {
+          $and: [
+            { organization: organizationId },
+            { hiringManager: new mongoose.Types.ObjectId(user._id) }
+          ]
+        };
+      } else if (user.role === 'HR Admin' || user.role === 'Admin') {
+        // HR Admin and Admin see all applicants for their organization
+        query = { organization: organizationId };
       }
+
+      console.log('Applicant query:', JSON.stringify(query));
 
       const applicants = await Applicant.find(query)
         .populate('jobPosting', 'title')
         .populate('hiringManager', 'name email')
         .sort({ createdAt: -1 });
+
+      console.log(`Found ${applicants.length} applicants matching query`);
       return applicants;
     } catch (error) {
       console.error('Error in getApplicants:', error);

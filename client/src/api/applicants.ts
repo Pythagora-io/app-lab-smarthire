@@ -1,10 +1,10 @@
 import api from './api';
 import { Applicant } from './types';
 
-// Description: Get all applicants
+// Description: Get a list of applicants
 // Endpoint: GET /api/applicants
 // Request: {}
-// Response: { applicants: Applicant[] }
+// Response: { applicants: Array<Applicant> }
 export const getApplicants = async () => {
   try {
     console.log('Calling getApplicants API');

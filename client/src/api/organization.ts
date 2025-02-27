@@ -57,3 +57,16 @@ export const updateUserRole = async (id: string, data: { role: string }) => {
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
+
+// Description: Get all hiring managers for organization
+// Endpoint: GET /api/organization/hiring-managers
+// Request: {}
+// Response: { users: Array<{ _id: string, name: string, email: string, role: string }> }
+export const getHiringManagers = async () => {
+  try {
+    const response = await api.get('/api/organization/hiring-managers');
+    return response.data;
+  } catch (error) {
+    throw new Error(error?.response?.data?.error || error.message);
+  }
+};

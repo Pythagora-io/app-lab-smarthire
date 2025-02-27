@@ -7,9 +7,12 @@ import { Applicant } from './types';
 // Response: { applicants: Applicant[] }
 export const getApplicants = async () => {
   try {
+    console.log('Calling getApplicants API');
     const response = await api.get('/api/applicants');
+    console.log('getApplicants API response:', response.data);
     return response.data;
   } catch (error) {
+    console.error('Error in getApplicants:', error);
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
@@ -21,6 +24,19 @@ export const getApplicants = async () => {
 export const updateApplicantStatus = async (id: string, status: Applicant['status']) => {
   try {
     const response = await api.put(`/api/applicants/${id}/status`, { status });
+    return response.data;
+  } catch (error) {
+    throw new Error(error?.response?.data?.error || error.message);
+  }
+};
+
+// Description: Assign hiring manager to applicant
+// Endpoint: PUT /api/applicants/:id/hiring-manager
+// Request: { hiringManagerId: string }
+// Response: { applicant: Applicant }
+export const assignHiringManager = async (id: string, hiringManagerId: string) => {
+  try {
+    const response = await api.put(`/api/applicants/${id}/hiring-manager`, { hiringManagerId });
     return response.data;
   } catch (error) {
     throw new Error(error?.response?.data?.error || error.message);

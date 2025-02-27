@@ -26,16 +26,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getApplicants, updateApplicantStatus } from "@/api/applicants"
+import { getApplicants, updateApplicantStatus, assignHiringManager } from "@/api/applicants"
 import { getJobPostings, getJobPostingById } from "@/api/jobPostings"
-import { Applicant, JobPosting, Contract, Team } from "@/api/types"
+import { Applicant, JobPosting, Contract, Team, User } from "@/api/types"
 import { useToast } from "@/hooks/useToast"
 import { FileIcon, ExternalLink, Search, User2, Mail, MapPin, FileText, CheckCircle, Target, Building2, Clock, Circle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { createContract } from "@/api/contracts"
 import { getTeams } from "@/api/teams"
+import { getHiringManagers } from "@/api/organization"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/AuthContext"
 
 const statusColors = {
   Applied: "default",
@@ -50,6 +52,7 @@ export function Applicants() {
   const [applicants, setApplicants] = useState<Applicant[]>([])
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([])
   const [teams, setTeams] = useState<Team[]>([])
+  const [organizationUsers, setOrganizationUsers] = useState<User[]>([])
   const [selectedJobPosting, setSelectedJobPosting] = useState<JobPosting | null>(null)
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null)
   const [jobPostingDialogOpen, setJobPostingDialogOpen] = useState(false)
@@ -66,13 +69,20 @@ export function Applicants() {
 
   const fetchApplicants = async () => {
     try {
+      console.log('Starting fetchApplicants');
       const [applicantsRes, jobPostingsRes] = await Promise.all([
         getApplicants(),
         getJobPostings()
       ]);
+      console.log('fetchApplicants API responses:', {
+        applicants: applicantsRes.applicants,
+        jobPostings: jobPostingsRes.jobPostings
+      });
       setApplicants(applicantsRes.applicants);
       setJobPostings(jobPostingsRes.jobPostings);
+      console.log('State updated in fetchApplicants');
     } catch (error) {
+      console.error('Error in fetchApplicants:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -83,16 +93,33 @@ export function Applicants() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [applicantsRes, jobPostingsRes, teamsRes] = await Promise.all([
-        getApplicants(),
-        getJobPostings(),
-        getTeams()
-      ])
-      console.log('Fetched applicants:', applicantsRes.applicants);
-      console.log('Fetched job postings:', jobPostingsRes.jobPostings);
-      setApplicants(applicantsRes.applicants)
-      setJobPostings(jobPostingsRes.jobPostings)
-      setTeams(teamsRes.teams)
+      try {
+        console.log('Starting fetchData in Applicants page');
+        const [applicantsRes, jobPostingsRes, teamsRes, hiringManagersRes] = await Promise.all([
+          getApplicants(),
+          getJobPostings(),
+          getTeams(),
+          getHiringManagers()
+        ])
+        console.log('API responses received:', {
+          applicants: applicantsRes,
+          jobPostings: jobPostingsRes.jobPostings,
+          teams: teamsRes.teams,
+          hiringManagers: hiringManagersRes.users
+        });
+        setApplicants(applicantsRes.applicants)
+        setJobPostings(jobPostingsRes.jobPostings)
+        setTeams(teamsRes.teams)
+        setOrganizationUsers(hiringManagersRes.users)
+        console.log('State updated with fetched data');
+      } catch (error) {
+        console.error('Error in fetchData:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message || "Failed to fetch data"
+        });
+      }
     }
     fetchData()
   }, [])
@@ -125,6 +152,23 @@ export function Applicants() {
       });
     }
   }
+
+  const handleAssignHiringManager = async (applicantId: string, hiringManagerId: string) => {
+    try {
+      await assignHiringManager(applicantId, hiringManagerId);
+      await fetchApplicants();
+      toast({
+        title: "Success",
+        description: "Hiring manager assigned successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to assign hiring manager",
+      });
+    }
+  };
 
   const handleCreateContract = async () => {
     try {
@@ -265,6 +309,35 @@ export function Applicants() {
           </DropdownMenuContent>
         </DropdownMenu>
       ),
+    },
+    {
+      key: "hiringManager",
+      title: "Hiring Manager",
+      render: (item: Applicant) => {
+        const { user } = useAuth();
+        if (user?.role !== 'HR Admin' && user?.role !== 'Admin') {
+          return item.hiringManager?.name || '-';
+        }
+
+        return (
+          <Select
+            value={item.hiringManager?._id || "unassigned"}
+            onValueChange={(value) => handleAssignHiringManager(item._id, value === "unassigned" ? "" : value)}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select hiring manager" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">None</SelectItem>
+              {organizationUsers.map((user) => (
+                <SelectItem key={user._id} value={user._id}>
+                  {user.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      },
     },
     {
       key: "createdAt",

@@ -148,6 +148,19 @@ class OrganizationService {
       throw error;
     }
   }
+
+  static async getHiringManagers(organizationId) {
+    try {
+      const users = await User.find({
+        organization: organizationId,
+        role: { $in: ['Hiring Manager'] }
+      }).select('-password -refreshToken');
+      return users;
+    } catch (error) {
+      console.error('Error in getHiringManagers:', error);
+      throw new Error('Failed to fetch hiring managers');
+    }
+  }
 }
 
 module.exports = OrganizationService;

@@ -42,6 +42,11 @@ const applicantSchema = new mongoose.Schema({
     ref: 'Organization',
     required: true,
   },
+  hiringManager: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now,

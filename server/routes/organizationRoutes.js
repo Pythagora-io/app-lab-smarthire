@@ -24,6 +24,18 @@ router.get('/', requireUser, async (req, res) => {
   }
 });
 
+// Get hiring managers for organization
+router.get('/hiring-managers', requireUser, async (req, res) => {
+  try {
+    const organizationId = req.user.organization;
+    const hiringManagers = await OrganizationService.getHiringManagers(organizationId);
+    res.json({ users: hiringManagers });
+  } catch (error) {
+    console.error('Error getting hiring managers:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Update organization
 router.put('/', requireUser, async (req, res) => {
   try {

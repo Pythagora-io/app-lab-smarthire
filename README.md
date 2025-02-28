@@ -1,133 +1,118 @@
-```markdown
-# SmartHIre
+# SmartHire
 
-SmartHIre is an advanced internal recruitment tool designed to streamline the application process by centralizing applicant data intake and tracking. It simplifies the recruitment workflow by integrating Google Forms for automatic applicant creation, providing real-time application status updates, role-based access, job postings, and team management.
+SmartHire is an internal tool designed to streamline the recruitment process by centralizing applicant intake and tracking their progress through the recruitment pipeline. This platform centralizes applicant management, real-time recruitment tracking, role-based access, and provides a comprehensive dashboard for visualizing key statistics.
 
 ## Overview
 
-SmartHIre is built with a modern full-stack architecture, leveraging ReactJS for the frontend, Express.js for the backend, and MongoDB for data storage. The project utilizes token-based authentication with JWT and follows best practices for code organization and maintainability.
+SmartHire employs a full-stack architecture, utilizing React for the frontend and Express.js for the backend, with MongoDB as the database layer. Key technologies include:
 
-### Technologies Used
+**Frontend:**
+- React (with Vite)
+- Tailwind CSS
+- shadcn/ui component library
+- Concurrently for simultaneous client and server operation
 
-- **Frontend**: 
-  - ReactJS (with Vite DevServer)
-  - Shadcn-ui component library
-  - Tailwind CSS
-  - React Router DOM
+**Backend:**
+- Express.js
+- MongoDB with Mongoose
+- Google OAuth for integration with Google Sheets
+- Node-Cron for scheduled tasks
 
-- **Backend**: 
-  - Node.js (Express.js)
-  - MongoDB (with Mongoose)
-  - JWT for authentication
+**Folder Structure:**
 
-### Project Structure
+```
+client/                   # Frontend
+    src/
+        api/             # API request handlers
+        components/      # Reusable React components
+        contexts/        # React context files
+        hooks/           # Custom hooks
+        pages/           # Page components
+        lib/             # Utility functions
+    public/              # Public assets
+    index.html           # HTML template
+    main.tsx             # Application entry point
 
-- **client/**: Contains the ReactJS frontend code.
-  - **api/**: API request files with mocked data.
-  - **components/**: Reusable React components.
-  - **contexts/**: Context for authentication.
-  - **hooks/**: Custom hooks.
-  - **pages/**: Main pages of the application.
-  - **styles/**: Global CSS styles.
-- **server/**: Contains the Express.js backend code.
-  - **config/**: Configuration files for database and Google OAuth.
-  - **models/**: Mongoose schemas.
-  - **routes/**: Express route handlers.
-  - **services/**: Business logic.
-  - **utils/**: Utility functions.
-  - **workers/**: Scheduled jobs.
+server/                   # Backend
+    models/              # Mongoose models
+    routes/              # API route handlers
+    services/            # Business logic services
+    config/              # Configuration files
+    workers/             # Scheduled tasks
+    server.js            # Server entry point
+```
 
 ## Features
 
-1. **Application Intake**
-   - Integrate Google Forms to sync applicant data.
-   - Fields: Email, Name, Location, CV upload, Positions interested, Additional file.
+### Application Intake
+- Integrates with Google Forms to automatically sync applicant data.
+- Captures relevant information including email, name, location, CV, and position interests.
 
-2. **Real-Time Application Status**
-   - Track recruitment stages: Applied, Screened, Interview Stages, Offer, Hired, Rejected.
-   - Assign applicants to job postings.
+### Real-Time Application Status
+- Tracks and displays the current recruitment stage of each applicant.
+- Recruitment Pipeline Stages: Applied, Screened, Interview, Offer, Hired, Rejected.
 
-3. **Role-Based Access**
-   - User roles: HR Admin, Hiring Manager, Admin.
-   - Different access levels and functionalities for each role.
+### Role-Based Access
+- Roles: Admin, HR Admin, Hiring Manager.
+- Admins have full access, HR Admins manage applicants, and Hiring Managers can view and interact with assigned applicants.
 
-4. **Dashboard**
-   - View applicant distribution across pipeline stages.
-   - List of leave approvals with Approve and Cancel buttons.
+### Dashboard
+- Provides analytics on the number of applicants and distribution across pipeline stages.
+- Displays the number of ongoing interviews.
 
-5. **Organization Management**
-   - Isolated data for each organization.
-   - Manage organization details and users.
+### Organization Management
+- Each organization is isolated with user management capabilities.
+- Allows renaming the organization and managing team structures.
 
-6. **Job Postings**
-   - Create and manage job postings.
-   - Assign job postings to teams.
+### Job Postings
+- Create and manage job postings.
+- Assign job postings to specific teams.
 
-7. **Teams**
-   - Manage teams within an organization.
-   - Dashboard for team insights.
-   
-8. **Contracts**
-   - Manage contracts associated with job postings and hired applicants.
+### Teams
+- Manage teams and automatically assign new hires to respective teams.
+- Displays team statistics, including total number of teams and new hires per month.
+
+### Contracts
+- Manage employment contracts including salary, type, and status.
+- View contract activity logs.
 
 ## Getting Started
 
 ### Requirements
 
-To run this project, you need:
-
-- Node.js (v14 or higher)
-- MongoDB (local or cloud-based)
-- Google account for OAuth integration (for Google Forms feature)
+To run SmartHire locally, you will need:
+- Node.js (v14 or later)
+- MongoDB
+- A Google account for Google Sheets integration
 
 ### Quickstart
 
-1. **Clone the repository**
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd SmartHire
+   ```
 
-```bash
-git clone https://github.com/yourusername/SmartHIre.git
-cd SmartHIre
-```
+2. **Install dependencies for both client and server:**
+   ```bash
+   cd client
+   npm install
+   cd ../server
+   npm install
+   ```
 
-2. **Install dependencies**
+3. **Set up environment variables:**
+   Create a `.env` file in the `server` directory based on `server/.env.example` and fill in the necessary values, especially for the MongoDB connection and Google OAuth credentials.
 
-```bash
-# Install backend dependencies
-cd server
-npm install
+4. **Run the development servers:**
+   Return to the root directory and start both client and server concurrently:
+   ```bash
+   cd ..
+   npm run start
+   ```
 
-# Install frontend dependencies
-cd ../client
-npm install
-```
-
-3. **Set up environment variables**
-
-Create a `.env` file in the `server/` directory with the following content:
-
-```env
-PORT=3000
-MONGODB_URL=mongodb://localhost:27017/smarthire
-JWT_SECRET=your_jwt_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-```
-
-4. **Run the application**
-
-```bash
-# In the project root directory
-npm run start
-```
-
-This command runs both the frontend and backend using concurrently.
-
-5. **Access the application**
-
-Open your browser and navigate to `http://localhost:5173` to access the application.
+The client will be available at `http://localhost:5173` and the server at `http://localhost:3000`.
 
 ### License
 
-The project is proprietary (not open source). All rights reserved.  
 Copyright (c) 2024.
-```

@@ -10,7 +10,7 @@ import {
 import { getApplicants } from "@/api/applicants"
 import { getTeams } from "@/api/teams"
 import { getJobPostings } from "@/api/jobPostings"
-import { getApplicantDistribution } from "@/api/dashboard"
+import { getApplicantDistribution, getCurrentlyInterviewing } from "@/api/dashboard"
 import { Applicant, Team, JobPosting } from "@/api/types"
 import { useToast } from "@/hooks/useToast"
 import {
@@ -27,31 +27,47 @@ export function Dashboard() {
   const [teams, setTeams] = useState<Team[]>([])
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([])
   const [pipelineData, setPipelineData] = useState<{ name: string, count: number }[]>([])
+  const [interviewingCount, setInterviewingCount] = useState<number>(0)
   const { toast } = useToast()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [applicantsRes, teamsRes, jobPostingsRes, distributionRes] = await Promise.all([
+        const [
+          applicantsRes,
+          teamsRes,
+          jobPostingsRes,
+          distributionRes,
+          interviewingRes
+        ] = await Promise.all([
           getApplicants(),
           getTeams(),
           getJobPostings(),
-          getApplicantDistribution()
+          getApplicantDistribution(),
+          getCurrentlyInterviewing()
         ])
         setApplicants(applicantsRes.applicants)
         setTeams(teamsRes.teams)
         setJobPostings(jobPostingsRes.jobPostings)
         setPipelineData(distributionRes.distribution)
+        setInterviewingCount(interviewingRes.count)
       } catch (error) {
         toast({
           variant: "destructive",
           title: "Error",
           description: error.message
         })
+      } finally {
+        setLoading(false)
       }
     }
     fetchData()
   }, [])
+
+  if (loading) {
+    return <div>Loading dashboard data...</div>
+  }
 
   return (
     <div className="space-y-8">
@@ -83,11 +99,11 @@ export function Dashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Interviews Today</CardTitle>
+            <CardTitle className="text-sm font-medium">Currently Interviewing</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
+            <div className="text-2xl font-bold">{interviewingCount}</div>
           </CardContent>
         </Card>
 

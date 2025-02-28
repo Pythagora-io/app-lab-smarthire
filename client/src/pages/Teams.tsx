@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { PageHeader } from "@/components/PageHeader"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/DataTable"
-import { Plus, Users, FileText, Calendar, User2, Pencil } from "lucide-react"
+import { Plus, Users, FileText, Calendar, User2, Pencil, UserPlus } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { getTeams, createTeam, getTeamEmployees, updateTeamManager } from "@/api/teams"
+import { getTeamsStats } from "@/api/dashboard"
 import { Team, Employee } from "@/api/types"
 import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
@@ -39,6 +40,11 @@ export function Teams() {
   const [open, setOpen] = useState(false)
   const [editingManagerId, setEditingManagerId] = useState<string | null>(null)
   const [managerName, setManagerName] = useState<string>("")
+  const [teamsStats, setTeamsStats] = useState({
+    totalTeams: 0,
+    totalEmployees: 0,
+    newHiresCount: 0
+  })
   const { toast } = useToast()
   const { register, handleSubmit, reset } = useForm()
 
@@ -57,6 +63,22 @@ export function Teams() {
       }
     }
     fetchTeams()
+  }, [])
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await getTeamsStats()
+        setTeamsStats(stats)
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message
+        })
+      }
+    }
+    fetchStats()
   }, [])
 
   useEffect(() => {
@@ -179,50 +201,48 @@ export function Teams() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Employees
+                  Total Teams
                 </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{employees.length}</div>
+                <div className="text-2xl font-bold">{teamsStats.totalTeams}</div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  On Leave Today
+                  Total Employees
+                </CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{teamsStats.totalEmployees}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  New Hires This Month
+                </CardTitle>
+                <UserPlus className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{teamsStats.newHiresCount}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Leaves Today
                 </CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {employees.filter(e => e.status === 'On Leave').length}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  New Hires
-                </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">2</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Documents
-                </CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">15</div>
+                <div className="text-2xl font-bold">N/A</div>
               </CardContent>
             </Card>
           </div>

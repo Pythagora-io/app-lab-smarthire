@@ -46,8 +46,12 @@ export function Sidebar() {
             <SidebarLink href="/" icon={LayoutDashboard}>Dashboard</SidebarLink>
             <SidebarLink href="/applicants" icon={UserPlus}>Applicants</SidebarLink>
             <SidebarLink href="/job-postings" icon={Briefcase}>Job Postings</SidebarLink>
-            <SidebarLink href="/teams" icon={Users}>Teams</SidebarLink>
-            <SidebarLink href="/contracts" icon={FileText}>Contracts</SidebarLink>
+            {user?.role !== 'Hiring Manager' && (
+              <>
+                <SidebarLink href="/teams" icon={Users}>Teams</SidebarLink>
+                <SidebarLink href="/contracts" icon={FileText}>Contracts</SidebarLink>
+              </>
+            )}
             {user?.role === 'Admin' && (
               <SidebarLink href="/organization" icon={Building2}>Organization</SidebarLink>
             )}

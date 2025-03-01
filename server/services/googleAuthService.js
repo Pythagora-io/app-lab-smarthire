@@ -1,21 +1,19 @@
-const { oauth2Client, SCOPES } = require('../config/google');
+const { SCOPES, createOAuth2Client } = require('../config/google');
 const Organization = require('../models/Organization');
 
 class GoogleAuthService {
-  static getAuthUrl() {
+  static getAuthUrl(redirectUri) {
+    const oauth2Client = createOAuth2Client(redirectUri);
     return oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: SCOPES,
-      prompt: 'consent' // Force consent screen to get refresh token
+      prompt: 'consent'
     });
   }
 
-  // Mock function for getting tokens from Google
-  // Input: { code: string }
-  // Output: { access_token: string, refresh_token: string, expiry_date: number }
-  static async getTokens(code) {
+  static async getTokens(code, redirectUri) {
     try {
-      // In production, this would make a real call to Google
+      const oauth2Client = createOAuth2Client(redirectUri);
       const { tokens } = await oauth2Client.getToken(code);
       return tokens;
     } catch (error) {

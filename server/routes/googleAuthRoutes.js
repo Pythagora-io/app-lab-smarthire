@@ -13,7 +13,11 @@ router.get('/auth-url', requireUser, async (req, res) => {
       return res.status(403).json({ error: 'Only admins can access this endpoint' });
     }
 
-    const url = GoogleAuthService.getAuthUrl();
+    const redirectUri = process.env.NODE_ENV === 'production'
+      ? process.env.GOOGLE_REDIRECT_URI_PROD
+      : process.env.GOOGLE_REDIRECT_URI_DEV;
+
+    const url = GoogleAuthService.getAuthUrl(redirectUri);
     res.json({ url });
   } catch (error) {
     console.error('Error getting auth URL:', error);
@@ -28,6 +32,11 @@ router.get('/callback', (req, res) => {
     return res.status(400).send('No code provided');
   }
 
+  const frontendUrl = (process.env.NODE_ENV === 'production'
+      ? process.env.GOOGLE_REDIRECT_URI_PROD
+      : process.env.GOOGLE_REDIRECT_URI_DEV)
+    .replace('/api/google/callback', '');
+
   // Serve an HTML page that will post the code back to the parent window
   res.send(`
     <html>
@@ -35,7 +44,7 @@ router.get('/callback', (req, res) => {
         <script>
           window.opener.postMessage(
             { type: 'GOOGLE_CALLBACK', code: '${code}' },
-            'http://localhost:5173'
+            '${frontendUrl}'
           );
         </script>
       </body>
@@ -55,7 +64,11 @@ router.post('/callback', requireUser, async (req, res) => {
       return res.status(400).json({ error: 'Authorization code is required' });
     }
 
-    const tokens = await GoogleAuthService.getTokens(code);
+    const redirectUri = process.env.NODE_ENV === 'production'
+      ? process.env.GOOGLE_REDIRECT_URI_PROD
+      : process.env.GOOGLE_REDIRECT_URI_DEV;
+
+    const tokens = await GoogleAuthService.getTokens(code, redirectUri);
     if (!tokens.refresh_token) {
       throw new Error('No refresh token received');
     }

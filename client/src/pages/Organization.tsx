@@ -184,23 +184,38 @@ export function OrganizationPage() {
       const left = window.screenX + (window.outerWidth - width) / 2
       const top = window.screenY + (window.outerHeight - height) / 2
 
+      const authPromise = new Promise((resolve, reject) => {
+        const handleMessage = async (event: MessageEvent) => {
+          if (event.origin !== window.location.origin) return;
+
+          if (event.data.type === 'GOOGLE_CALLBACK') {
+            window.removeEventListener('message', handleMessage);
+            try {
+              await handleGoogleCallback(event.data.code);
+              resolve(true);
+            } catch (error) {
+              reject(error);
+            }
+          }
+        };
+
+        window.addEventListener('message', handleMessage);
+      });
+
       const popup = window.open(
         url,
         'Google Auth',
         `width=${width},height=${height},left=${left},top=${top}`
       )
 
-      window.addEventListener('message', async (event) => {
-        if (event.data.type === 'GOOGLE_CALLBACK') {
-          const { code } = event.data
-          await handleGoogleCallback(code)
-          toast({
-            title: "Success",
-            description: "Google account connected successfully",
-          })
-          popup?.close()
-        }
-      }, false)
+      await authPromise;
+
+      toast({
+        title: "Success",
+        description: "Google account connected successfully",
+      });
+
+      popup?.close();
     } catch (error) {
       toast({
         variant: "destructive",

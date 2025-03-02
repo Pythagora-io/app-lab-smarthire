@@ -1,118 +1,110 @@
-# SmartHire
+# SmartHIre
 
-SmartHire is an internal tool designed to streamline the recruitment process by centralizing applicant intake and tracking their progress through the recruitment pipeline. This platform centralizes applicant management, real-time recruitment tracking, role-based access, and provides a comprehensive dashboard for visualizing key statistics.
+SmartHIre is an internal tool designed to streamline the recruitment process by centralizing applicant intake and tracking their progress through the recruitment pipeline. The platform integrates with Google Forms to automatically sync applicant data and provides comprehensive role-based access tailored for HR Admins, Hiring Managers, and Admins. 
 
 ## Overview
 
-SmartHire employs a full-stack architecture, utilizing React for the frontend and Express.js for the backend, with MongoDB as the database layer. Key technologies include:
+SmartHIre leverages a modern web architecture comprised of a React-based frontend and an Express-based backend. The integration of these technologies ensures a seamless and responsive user experience.
 
-**Frontend:**
-- React (with Vite)
-- Tailwind CSS
-- shadcn/ui component library
-- Concurrently for simultaneous client and server operation
+### Technologies Used
+- **Frontend**: ReactJS, Vite, Tailwind CSS, shadcn-ui
+- **Backend**: Express, MongoDB, Mongoose
+- **Authentication**: JWT, OAuth2 (Google)
+- **Others**: axios, concurrently, node-cron, bcrypt
 
-**Backend:**
-- Express.js
-- MongoDB with Mongoose
-- Google OAuth for integration with Google Sheets
-- Node-Cron for scheduled tasks
+### Project Structure
 
-**Folder Structure:**
+The project is structured into two main parts:
+1. **Frontend** (`client/`): 
+    - **React Components** (`client/src/components`): Individual components, utilizing shadcn-ui and Tailwind CSS.
+    - **API Services** (`client/src/api`): API requests to the backend, using axios.
+    - **Pages** (`client/src/pages`): Main route components implemented with `react-router-dom`.
 
-```
-client/                   # Frontend
-    src/
-        api/             # API request handlers
-        components/      # Reusable React components
-        contexts/        # React context files
-        hooks/           # Custom hooks
-        pages/           # Page components
-        lib/             # Utility functions
-    public/              # Public assets
-    index.html           # HTML template
-    main.tsx             # Application entry point
-
-server/                   # Backend
-    models/              # Mongoose models
-    routes/              # API route handlers
-    services/            # Business logic services
-    config/              # Configuration files
-    workers/             # Scheduled tasks
-    server.js            # Server entry point
-```
+2. **Backend** (`server/`):
+    - **Routes** (`server/routes`): Express route handlers for different resources.
+    - **Models** (`server/models`): Mongoose models representing the data structure.
+    - **Services** (`server/services`): Business logic, interacting with models and external services like Google Sheets.
+    - **Workers** (`server/workers`): Scheduled tasks, like periodic polling of Google Sheets for new responses.
 
 ## Features
 
-### Application Intake
-- Integrates with Google Forms to automatically sync applicant data.
-- Captures relevant information including email, name, location, CV, and position interests.
+### Key Features in the MVP
 
-### Real-Time Application Status
-- Tracks and displays the current recruitment stage of each applicant.
-- Recruitment Pipeline Stages: Applied, Screened, Interview, Offer, Hired, Rejected.
+1. **Application Intake**:
+   - Integration with Google Forms to automatically sync applicant data.
+   - Comprehensive application fields including Email, Name, Location, CV upload, Positions interested, and additional files.
 
-### Role-Based Access
-- Roles: Admin, HR Admin, Hiring Manager.
-- Admins have full access, HR Admins manage applicants, and Hiring Managers can view and interact with assigned applicants.
+2. **Real-Time Application Status**:
+   - Tracking and displaying the current recruitment stage of each applicant.
+   - Assignment of applicants to specific job postings.
+   - Defined recruitment pipeline stages: Applied, Screened, Interview, Offer, Hired, Rejected.
 
-### Dashboard
-- Provides analytics on the number of applicants and distribution across pipeline stages.
-- Displays the number of ongoing interviews.
+3. **Role-Based Access**:
+   - **HR Admin**: Full management access to applicants and the ability to assign Hiring Managers.
+   - **Hiring Manager**: View-only access to applicants assigned to their job postings.
+   - **Admin**: Full organizational access.
 
-### Organization Management
-- Each organization is isolated with user management capabilities.
-- Allows renaming the organization and managing team structures.
+4. **Dashboard**:
+   - Provides visual insights on the total number of applicants and their pipeline stage distribution.
+   - Displays ongoing interviews without a time span constraint.
 
-### Job Postings
-- Create and manage job postings.
-- Assign job postings to specific teams.
+5. **Organization Management**:
+   - Organizational isolation: data and users are unique to each organization.
+   - Admin capabilities to rename the organization, manage users, and handle Google Forms integration.
 
-### Teams
-- Manage teams and automatically assign new hires to respective teams.
-- Displays team statistics, including total number of teams and new hires per month.
+6. **Job Postings**:
+   - Creation and management of job postings, detailing team requirements.
 
-### Contracts
-- Manage employment contracts including salary, type, and status.
-- View contract activity logs.
+7. **Teams**:
+   - Manage team structures and view insights such as total number of teams, employee counts, and new hires.
 
-## Getting Started
+8. **Contracts**:
+   - Contract management including associated job postings, salary, type, and status changes.
+
+## Getting started
 
 ### Requirements
 
-To run SmartHire locally, you will need:
-- Node.js (v14 or later)
+Ensure the following technologies are set up on your computer:
+- Node.js
 - MongoDB
-- A Google account for Google Sheets integration
 
 ### Quickstart
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd SmartHire
+1. **Clone the repository**
+   ```sh
+   git clone <repository_url>
+   cd SmartHIre
    ```
 
-2. **Install dependencies for both client and server:**
-   ```bash
-   cd client
-   npm install
-   cd ../server
-   npm install
-   ```
+2. **Install Dependencies**
+   - For the backend:
+     ```sh
+     cd server
+     npm install
+     ```
 
-3. **Set up environment variables:**
-   Create a `.env` file in the `server` directory based on `server/.env.example` and fill in the necessary values, especially for the MongoDB connection and Google OAuth credentials.
+   - For the frontend:
+     ```sh
+     cd client
+     npm install
+     ```
 
-4. **Run the development servers:**
-   Return to the root directory and start both client and server concurrently:
-   ```bash
-   cd ..
-   npm run start
-   ```
+3. **Configure Environment Variables**
+   - Create a `.env` file in the `server` directory based on `.env.example` and update the values accordingly.
 
-The client will be available at `http://localhost:5173` and the server at `http://localhost:3000`.
+4. **Run the Project**
+   - Use the `concurrently` script to run both client and server:
+     ```sh
+     npm run start
+     ```
+
+5. **Access the Application**
+   - Open your browser to `http://localhost:5173` to start using SmartHIre.
 
 ### License
 
-Copyright (c) 2024.
+The project is proprietary (not open source). 
+```
+The project is proprietary. Copyright (c) 2024.
+```

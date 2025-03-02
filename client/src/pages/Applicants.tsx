@@ -313,25 +313,46 @@ export function Applicants() {
     {
       key: "hiringManager",
       title: "Hiring Manager",
-      render: (item: Applicant) => {
+      render: (applicant: Applicant) => {
         const { user } = useAuth();
         if (user?.role !== 'HR Admin' && user?.role !== 'Admin') {
-          return item.hiringManager?.name || '-';
+          return applicant.hiringManager?.name || '-';
         }
 
         return (
           <Select
-            value={item.hiringManager?._id || "unassigned"}
-            onValueChange={(value) => handleAssignHiringManager(item._id, value === "unassigned" ? "" : value)}
+            value={applicant.hiringManager?._id || "none"}
+            onValueChange={async (value) => {
+              try {
+                if (value === "none") {
+                  return;
+                }
+                await assignHiringManager(applicant._id, value);
+                toast({
+                  title: "Success",
+                  description: "Hiring manager assigned successfully",
+                });
+              } catch (error) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: error.message,
+                });
+              }
+            }}
           >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select hiring manager" />
+            <SelectTrigger>
+              <SelectValue>
+                {applicant.hiringManager?.name || "Select Hiring Manager"}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="unassigned">None</SelectItem>
-              {organizationUsers.map((user) => (
-                <SelectItem key={user._id} value={user._id}>
-                  {user.name}
+              {!applicant.hiringManager && (
+                <SelectItem value="none">None</SelectItem>
+              )}
+              {organizationUsers.map((hm) => (
+                <SelectItem key={hm._id} value={hm._id}>
+                  {hm.name}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const { oauth2Client } = require('../config/google');
+const { SCOPES, createOAuth2Client } = require('../config/google');
 const Organization = require('../models/Organization');
 const Applicant = require('../models/Applicant');
 const { parseISO, isAfter } = require('date-fns');
@@ -9,7 +9,20 @@ class GoogleSheetService {
 
   static async getSheetHeaders(organization) {
     try {
-      // Set credentials using refresh token
+      // First check if we have the necessary credentials
+      if (!organization.googleRefreshToken) {
+        throw new Error('Please connect your Google account to access Google Sheets integration. Click the "Connect" button in the Google Sheets section to get started.');
+      }
+
+      if (!organization.googleSheetUrl) {
+        throw new Error('Please enter a Google Sheet URL before attempting to fetch headers.');
+      }
+
+      const redirectUri = process.env.NODE_ENV === 'production'
+        ? process.env.GOOGLE_REDIRECT_URI_PROD
+        : process.env.GOOGLE_REDIRECT_URI_DEV;
+
+      const oauth2Client = createOAuth2Client(redirectUri);
       oauth2Client.setCredentials({
         refresh_token: organization.googleRefreshToken
       });
@@ -26,9 +39,18 @@ class GoogleSheetService {
         range: 'A1:Z1', // First row, multiple columns
       });
 
-      // Return header row values
       return response.data.values[0];
     } catch (error) {
+      // If it's our custom error, pass it through
+      if (error.message.includes('Please connect your Google account') ||
+          error.message.includes('Please enter a Google Sheet URL')) {
+        throw error;
+      }
+
+      if (error.message.includes('invalid_grant')) {
+        throw new Error('Your Google account connection has expired. Please disconnect and reconnect your Google account to continue.');
+      }
+
       console.error('Error fetching sheet headers:', error);
       throw new Error('Failed to fetch sheet headers: ' + error.message);
     }
@@ -36,12 +58,15 @@ class GoogleSheetService {
 
   static async getNewResponses(organization) {
     try {
-      // Set credentials using refresh token
+      const redirectUri = process.env.NODE_ENV === 'production'
+        ? process.env.GOOGLE_REDIRECT_URI_PROD
+        : process.env.GOOGLE_REDIRECT_URI_DEV;
+
+      const oauth2Client = createOAuth2Client(redirectUri);
       oauth2Client.setCredentials({
         refresh_token: organization.googleRefreshToken
       });
 
-      // Create sheets client
       const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
 
       // Extract sheet ID from URL
@@ -77,6 +102,17 @@ class GoogleSheetService {
 
       return rows;
     } catch (error) {
+      // Handle invalid/expired token specifically
+      if (error.message.includes('invalid_grant')) {
+        // Reset organization's Google integration
+        await Organization.findByIdAndUpdate(organization._id, {
+          $set: {
+            googleRefreshToken: null,
+            isPollingEnabled: false
+          }
+        });
+        throw new Error('Google access token has expired. Please reconnect your Google account.');
+      }
       console.error('Error fetching sheet responses:', error);
       throw new Error('Failed to fetch sheet responses: ' + error.message);
     }

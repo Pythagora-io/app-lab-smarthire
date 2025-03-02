@@ -51,6 +51,13 @@ class GoogleAuthService {
       }
 
       if (organization.googleRefreshToken) {
+        // Create new oauth2Client instance
+        const oauth2Client = createOAuth2Client(
+          process.env.NODE_ENV === 'production'
+            ? process.env.GOOGLE_REDIRECT_URI_PROD
+            : process.env.GOOGLE_REDIRECT_URI_DEV
+        );
+
         oauth2Client.setCredentials({
           refresh_token: organization.googleRefreshToken
         });

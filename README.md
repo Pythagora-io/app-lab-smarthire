@@ -104,7 +104,6 @@ Ensure the following technologies are set up on your computer:
 
 ### License
 
-The project is proprietary (not open source). 
-```
-The project is proprietary. Copyright (c) 2024.
-```
+The project is open source, licensed under the MIT License. See the [LICENSE](LICENSE).
+
+Copyright © 2025 Pythagora-io.
